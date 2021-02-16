@@ -25,14 +25,13 @@ let inqCount = 0;
 const actChoice =["View", "View By" , "Add", "Update"];
 const viewChoice = ["View Department","View Roles","View Employees"];
 const viewByChoice = ["View Employees by Manager" , "View Total Utilised Budget"];
-const addChoice = ["Add Department","Add Role","Add Employees" , ];
-const updtChoice = ["Update Employee Roles", "Update Employee Managers"];
+const addChoice = ["Add Department","Add Role","Add Employee" , ];
 
 const slctact = {name: "act", type: "rawlist", message:"What do you want to do?" , choices: actChoice, default:"view"};
 const slctViewChoice = {name: "act", type: "rawlist", message:"Select which area you would like to view.", choices: viewChoice, default:"View Department"};
 const slctViewByChoice = {name: "act", type: "rawlist", message:"Select what you would like to view by", choices: viewByChoice, default:"View Employees by Manager"};
 const slctAddChoice = {name: "act", type: "rawlist", message:"Select which area you want to add to.", choices: addChoice, default:"Add Department"};
-const slctUpdtChoice = {name: "act", type: "rawlist", message:"Select which area you wish to update.", choices:updtChoice, default:"Update Employee Roles"};
+
 
 const viewEmpMang = {name: "viewEmpMang", type: "input", message:"Input manager to find which employees are under them."};
 
@@ -56,13 +55,12 @@ const addEmploy = [
 
 ];
 
-const updEmployRole = [
+const updEmployee = [
 
-    {name: "upEmp", type: "input", message:"Input the employee you wish to update"},
-    {name: "upEmp", type: "input", message:"Input the employee you want to add."},
+    {name: "upID", type: "input", message:"Input the employee ID you wish to update"},    
     {name: "upEmp_fName", type: "input", message:"What is their first name?"},
     {name: "upEmp_lName", type: "input", message:"What is their last name?"},
-    {name: "upEmp_roleID", type: "input", message:"What is their role id?"},
+    {name: "upEmp_roleid", type: "input", message:"What is their role id?"},
     {name: "upEmp_manID", type: "input", message:"What is their manager's id?"}
 
 ];
@@ -70,6 +68,7 @@ const updEmployRole = [
 
 //Inquirer function
 function runInquirer(inputObject){
+
 
   inqCount++; 
 
@@ -79,163 +78,175 @@ function runInquirer(inputObject){
     .then( a => {   
 
 if (a.viewEmpMang != undefined){
-
-    a = "View Employees by Manager Query";  
+    
+    i = "View Employees by Manager Query";  
     p = a.viewEmpMang;
 
 }else if (a.addDept != undefined){    
 
-    a = "Add Department Query";
+    i = "Add Department Query";
     p = a.addDept;
 
-}else if (a.addRole != undefined){    
+}else if (a.addRoleTitle != undefined){    
 
-    a = "Add Role Query";
-    p = {title : a.addRoleTitle , salary: a.addRoleSalary , DeptID : a.addRoleDept_ID};
+    i = "Add Role Query";
+    p = {title : a.addRoleTitle , salary: a.addRoleSalary , deptID : a.addRoleDept_ID};
+}else if(a.addEmp_fName != undefined){
+
+    i = "Add Employee Query";
+    p = {fName : a.addEmp_fName , lName: a.addEmp_lName , role_id : a.addEmp_roleID, man_id : a.addEmp_manID };
+
+}else if(a.upID != undefined){
+
+    i = "Update Employee Query";
+    p = {upID : a.upID , fName: a.upEmp_fName , lName : a.upEmp_lName, role_id : a.upEmp_roleid, man_id: a.upEmp_manID };
+
 }
 else{
-    a = a.act;
+    i = a.act;
     p = "";
 }
 
-    inqRtn(a,q);
+    inqRtn(i,p);
           
     });
 }
 //End function runInquirer()
 
-function inqRtn(a,p){
+function inqRtn(i,p){
 
-    console.log("a - " + a);
-    console.log("q - " + p);
+    console.log("i - " + i);
+    console.log("p - " + p);
 
-switch (a) {
+switch (i) {
    
     // View Inquirer
 
-    case a = "View":
+    case i = "View":
 
         runInquirer(slctViewChoice);
-        console.log("view ran");
-        
+                
     break;
 
    
-    case a = "View Department":
+    case i = "View Department":
 
-        cnctSQL("SELECT * FROM department");
+        cnctSQL("SELECT * FROM department","s");
         
     break;
 
-    case a = "View Roles":
+    case i = "View Roles":
 
-        cnctSQL("SELECT * FROM role");
+        cnctSQL("SELECT * FROM role","s");
         
     break;
 
-    case a = "View Employees":
+    case i = "View Employees":
 
-        cnctSQL("SELECT * FROM employee");
+        cnctSQL("SELECT * FROM employee","s");
         
     break;    
 
  // View By Inquirer
 
-    case a = "View By":
+    case i = "View By":
 
         runInquirer(slctViewByChoice);
         
     break;    
 
-    case a = "View Employees by Manager":
+    case i = "View Employees by Manager":
     
         runInquirer(viewEmpMang);
         
     break;
 
-    case a = "View Employees by Manager Query":
+    case i = "View Employees by Manager Query":
         
-        cnctSQL(`SELECT * FROM employee WHERE manager_ID = ${p}`);
+        cnctSQL(`SELECT * FROM employee WHERE manager_ID = ${p}`,"s");
         
     break;
 
-    case a = "View Total Utilised Budget":
+    case i = "View Total Utilised Budget":
        
-        cnctSQL(`SELECT SUM(salary)total_sal FROM employee INNER JOIN role ON employee.role_id = role.id` );
+        cnctSQL(`SELECT SUM(salary)total_sal FROM employee INNER JOIN role ON employee.role_id = role.id`,"s" );
         
     break;   
 
 
  // Add Inquirer   
     
-    case a ="Add":
+    case i ="Add":
 
         runInquirer(slctAddChoice);
      
     break;
 
-    case a = "Add Department":
+    case i = "Add Department":
 
         runInquirer(addDept);
      
     break;
 
-    case a= "Add Department Query":        
+    case i= "Add Department Query":    
+    
+    console.log()
+    console.log(`INSERT INTO department (name) VALUES ('${p}')`,"i"); 
 
-        cnctSQL(`INSERT INTO department (name) VALUES ('${p}')`);
+    cnctSQL(`INSERT INTO department (name) VALUES ('${p}')`,"i");
      
     break;
 
-    case a = "Add Role":
+    case i = "Add Role":
 
         runInquirer(addRole);
      
     break;
 
-    case a= "Add Role Query":        
+    case i = "Add Role Query":
+        
+    console.log(`INSERT INTO role (title, salary, department_id) VALUES ('${p.title}' , '${p.salary}' , '${p.deptID}')`);        
 
-    cnctSQL(`INSERT INTO role (title, salary, department_id) VALUES ('${p.title}' , '${p.salary}' , ${p.DeptID}')`);
+    cnctSQL(`INSERT INTO role (title, salary, department_id) VALUES ('${p.title}' , '${p.salary}' , '${p.deptID}')`);
  
     break;    
 
-    case a = "Add Employee":
+    case i = "Add Employee":
 
         runInquirer(addEmploy);
      
     break;
 
-    case a = "Add Employee Query":
+    case i = "Add Employee Query":
 
-        runInquirer(addDept);
-     
-    break;
-
-    case a = "Update Employee Managers":
-
-        runInquirer(addDept);
+        cnctSQL(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${p.fName}' , '${p.lName}' , '${p.role_id}' , '${p.man_id}')`);
+        
      
     break;
 
 // Update Inquirer    
 
-    case a = "Update":
+    case i = "Update":
 
-        runInquirer(slctUpdtChoice) 
+        runInquirer(updEmployee);
 
-    case a != undefined:
-
-        cnctSQL(`SELECT ${a.viewEmpMang} FROM department`);
-        
     break;
+   
+    case i = "Update Employee Query":
 
+        cnctSQL(`UPDATE employee SET first_name = '${p.fName}' , last_name = '${p.lName}' , role_id = '${p.role_id}' , manager_id = '${p.man_id}' WHERE id = '${p.upID}'`); 
+
+    break;
 
     default:
-        console.log("error sdjlkfhasdk");
+
+        console.log(" SQL Function Error");
+
     break;
 }
 }
 
-function cnctSQL(query){         
+function cnctSQL(query,q){         
 
     pool.getConnection(function(err, connection) {
 
@@ -247,14 +258,28 @@ function cnctSQL(query){
             if (err){
                 console.log(err);
             }else{
+                
+                if (q === "s"){
 
-                results.forEach( (e) => {   
+                    let header = "";
+                    
 
-                    console.log(e);  
-                    console.log("____________________________________________________________________________________________");  
-                });
+                    fields.forEach( (e) => {                           
+                        header = header.concat(`| -- ${e.name} -- `)                         
+                    });
+                    console.log(header);
+                    
+                    results.forEach( (e) => {     
 
-            }
+                        console.log(e);  
+                        console.log("____________________________________________________________________________________________");  
+
+                    });
+                    }else {
+
+                        console.log("Query OK")
+                    }
+                 }
         
         connection.release(); 
         // When done with the connection, release it.        
@@ -265,4 +290,3 @@ function cnctSQL(query){
 
 //Call Inquirer for the first time when called from the command line.
 runInquirer(slctact);
-
